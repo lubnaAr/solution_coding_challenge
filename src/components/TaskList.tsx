@@ -7,12 +7,23 @@ import EditTask from './EditTask';
 
 
 const TaskList = () => {
-  const { tasks } = useContext(TaskContext);
+  const { tasks, updateTask } = useContext(TaskContext);
   const [deleteTask, setDeleteTask] = useState<{ id: number; name: string } | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [editTask, setEditTask] = useState<{ id: number; name: string; priority: 'High' | 'Medium' | 'Low' } | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const getNextState = (currentState: Task['state']): Task['state'] => {
+    if (currentState === 'To Do') return 'In Progress';
+    if (currentState === 'In Progress') return 'Done';
+    return 'To Do';
+  };
+
+  const handleStateChange = (task: Task) => {
+    const nextState = getNextState(task.state);
+    updateTask({ ...task, state: nextState });
+  };
 
   const handleOpenEditModal = (task: Task) => {
     setEditTask(task);
@@ -54,6 +65,13 @@ const TaskList = () => {
         >
           <ListItemText primary={task.name} secondary={`Priority: ${task.priority}, State: ${task.state}`} />
           <Box sx={{ display: 'flex', gap: '8px' }}>
+          <Button
+                variant="contained"
+                color="info"
+                onClick={() => handleStateChange(task)}
+              >
+                Move to {getNextState(task.state)}
+              </Button>
               <Button
                 variant="contained"
                 color="primary"
