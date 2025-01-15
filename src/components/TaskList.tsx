@@ -45,7 +45,12 @@ const TaskList = () => {
     setDeleteModalOpen(false);
   };
 
-  if (tasks.length === 0) {
+  const sortedTasks = [...tasks].sort((a, b) => {
+    const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+    return priorityOrder[b.priority] - priorityOrder[a.priority];
+  });
+
+  if (sortedTasks.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', marginTop: 4 }}>
         <Typography variant="h6"> All Done !</Typography>
@@ -56,7 +61,7 @@ const TaskList = () => {
   return (
     <Box>
     <List>
-      {tasks.map((task) => (
+      {sortedTasks.map((task) => (
         <ListItem 
           key={task.id}
           sx={{
