@@ -1,16 +1,18 @@
-import React, {useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Task } from '../types';
-import { Button, List, ListItem, ListItemText, Box, Typography } from '@mui/material';
+import { Button, List, ListItem, ListItemText, Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import TaskContext from './TaskContext';
 import DeleteTask from './DeleteTask';
 import EditTask from './EditTask';
 
-
 const TaskList = () => {
   const { tasks, updateTask, removeTask } = useContext(TaskContext);
+
+  const [stateFilter, setStateFilter] = useState<'All' | 'To Do' | 'In Progress' | 'Done'>('All');
+  const [priorityFilter, setPriorityFilter] = useState<'All' | 'High' | 'Medium' | 'Low'>('All');
+
   const [deleteTask, setDeleteTask] = useState<{ id: number; name: string } | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-
   const [editTask, setEditTask] = useState<{ id: number; name: string; priority: 'High' | 'Medium' | 'Low' } | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
@@ -49,32 +51,79 @@ const TaskList = () => {
     setDeleteModalOpen(false);
   };
 
-  const sortedTasks = [...tasks].sort((a, b) => {
-    const priorityOrder = { High: 3, Medium: 2, Low: 1 };
-    return priorityOrder[b.priority] - priorityOrder[a.priority];
-  });
+  const filteredAndSortedTasks = [...tasks]
+    .filter((task) => {
+      if (stateFilter !== 'All') return task.state === stateFilter;
+      return task.state !== 'Done';
+    })
+    .filter((task) => {
+      if (priorityFilter !== 'All') return task.priority === priorityFilter;
+      return true;
+    })
+    .sort((a, b) => {
+      const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    });
 
-  if (sortedTasks.length === 0) {
+  if (filteredAndSortedTasks.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', marginTop: 4 }}>
-        <Typography variant="h6"> All Done !</Typography>
+        <Typography variant="h6">No tasks available!</Typography>
       </Box>
     );
   }
 
   return (
     <Box>
-    <List>
-      {sortedTasks.map((task) => (
-        <ListItem 
-          key={task.id}
-          sx={{
-            gap: '16px',
-          }}
-        >
-          <ListItemText primary={task.name} secondary={`Priority: ${task.priority}, State: ${task.state}`} />
-          <Box sx={{ display: 'flex', gap: '8px' }}>
-          <Button
+      <Box sx={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+        <FormControl size="small" variant="outlined">
+          <InputLabel>State</InputLabel>
+          <Select
+            value={stateFilter}
+            onChange={(e) => setStateFilter(e.target.value as 'All' | 'To Do' | 'In Progress' | 'Done')}
+            label="State"
+          >
+            <MenuItem value="All">All</MenuItem>
+            <MenuItem value="To Do">To Do</MenuItem>
+            <MenuItem value="In Progress">In Progress</MenuItem>
+            <MenuItem value="Done">Done</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl size="small" variant="outlined">
+          <InputLabel>Priority</InputLabel>
+          <Select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value as 'All' | 'High' | 'Medium' | 'Low')}
+            label="Priority"
+          >
+            <MenuItem value="All">All</MenuItem>
+            <MenuItem value="High">High</MenuItem>
+            <MenuItem value="Medium">Medium</MenuItem>
+            <MenuItem value="Low">Low</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      <List>
+        {filteredAndSortedTasks.map((task) => (
+          <ListItem
+            key={task.id}
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: '16px',
+              borderBottom: '1px solid #ccc',
+              padding: '10px 0',
+            }}
+          >
+            <ListItemText
+              primary={task.name}
+              secondary={`Priority: ${task.priority}, State: ${task.state}`}
+            />
+            <Box sx={{ display: 'flex', gap: '8px' }}>
+              <Button
                 variant="contained"
                 color="info"
                 onClick={() => handleStateChange(task)}
@@ -96,10 +145,11 @@ const TaskList = () => {
                 Delete
               </Button>
             </Box>
-        </ListItem>
-      ))}
-    </List>
-    {editTask && (
+          </ListItem>
+        ))}
+      </List>
+
+      {editTask && (
         <EditTask
           taskId={editTask.id}
           taskName={editTask.name}
@@ -118,6 +168,6 @@ const TaskList = () => {
       )}
     </Box>
   );
-}
+};
 
 export default TaskList;
