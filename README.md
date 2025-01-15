@@ -1,3 +1,24 @@
+#Solution Explanation 
+
+Solution Implemented
+CRUD
+Create the new task.
+Remove the existing
+Update the task
+Display/List the task
+Filtering the existing task based on State and Priority
+Sorting: High Priority task will be displayed first
+
+Assumption
+  1. Tasks are currently being stored in local storage ( Its not the ideal solution , will be fixed later )
+  2. Given the flexibility that Task can be moved from Done to ToDo in case it has to be restarted 
+
+Advanced Feature
+  1. Making Create Task Button as Floating 
+  2. Keeping the tasks in JSON file for optimized solution
+
+
+
 # Evermore coding challenge
 
 This template provides a minimal setup and `all the tools you will need` for this challenge.
