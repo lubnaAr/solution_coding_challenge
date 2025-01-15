@@ -7,7 +7,7 @@ import EditTask from './EditTask';
 
 
 const TaskList = () => {
-  const { tasks, updateTask } = useContext(TaskContext);
+  const { tasks, updateTask, removeTask } = useContext(TaskContext);
   const [deleteTask, setDeleteTask] = useState<{ id: number; name: string } | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
@@ -22,7 +22,11 @@ const TaskList = () => {
 
   const handleStateChange = (task: Task) => {
     const nextState = getNextState(task.state);
-    updateTask({ ...task, state: nextState });
+    if (nextState === 'Done') {
+      removeTask(task.id);
+    } else {
+      updateTask({ ...task, state: nextState });
+    }
   };
 
   const handleOpenEditModal = (task: Task) => {
